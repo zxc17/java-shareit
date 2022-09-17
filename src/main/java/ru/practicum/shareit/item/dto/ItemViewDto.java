@@ -1,22 +1,18 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item.dto;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.user.User;
 
 /**
- *
+ * DTO, передающий фронтенду данные для просмотра вещей.
  */
 @Getter
 @Setter
 @Builder
-public class Item {
+public class ItemViewDto {
     private Long id;
     private String name;
     private String description;
     private Boolean available;
-    private User owner;
-    private ItemRequest request;
 }
