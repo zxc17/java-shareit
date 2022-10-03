@@ -17,7 +17,7 @@ import javax.validation.constraints.Pattern;
 public class UserDto {
     private Long id;
     @NotBlank(groups = {Create.class})
-    @Pattern(regexp = "^\\S+$", groups = {Update.class})    // Запрет пробельных символов и пустых строк.
+    @Pattern(regexp = "^\\S+$", groups = {Update.class})    // Запрет пробельных символов и пустых строк, разрешен null.
     private String name;
     @NotNull(groups = {Create.class})
     @Email(groups = {Create.class, Update.class})

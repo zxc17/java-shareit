@@ -2,7 +2,6 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.ValidationConflictException;
 import ru.practicum.shareit.exception.ValidationNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -12,47 +11,47 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     public UserDto add(UserDto userDto) {
-        if (userStorage.isEmailUsed(userDto.getEmail(), 0L)) // 0 - новый пользователь.
-            throw new ValidationConflictException(String.format("E-mail %s уже используется.", userDto.getEmail()));
-        User user = UserMapper.toUser(userDto);
-        user = userStorage.add(user);
-        return UserMapper.toUserDto(user);
+        User user = userMapper.toUser(userDto);
+        user = userRepository.save(user);
+        return userMapper.toUserDto(user);
     }
 
     @Override
     public List<UserDto> getAll() {
-        List<User> users = userStorage.getAll();
+        List<User> users = userRepository.findAll();
         return users.stream()
-                .map(UserMapper::toUserDto)
+                .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserDto getById(Long id) {
-        User user = userStorage.getById(id);
-        if (user == null) throw new ValidationNotFoundException(String.format("userId=%s не найден.", id));
-        return UserMapper.toUserDto(user);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ValidationNotFoundException(String.format("userId=%s не найден.", id)));
+        return userMapper.toUserDto(user);
     }
 
     @Override
     public UserDto update(Long id, UserDto userDto) {
-        if (userStorage.getById(id) == null) throw new ValidationNotFoundException(String
-                .format("userId=%s не найден.", id));
-        if (userStorage.isEmailUsed(userDto.getEmail(), id)) throw new ValidationConflictException(String
-                .format("E-mail %s уже используется.", userDto.getEmail()));
-        User user = UserMapper.toUser(userDto);
-        user = userStorage.update(user, id);
-        return UserMapper.toUserDto(user);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ValidationNotFoundException(String.format("userId=%s не найден.", id)));
+        if (userDto.getName() != null)
+            user.setName(userDto.getName());
+        if (userDto.getEmail() != null)
+            user.setEmail(userDto.getEmail());
+        user = userRepository.save(user);
+        return userMapper.toUserDto(user);
     }
 
     @Override
     public void remove(Long id) {
-        if (userStorage.getById(id) == null)
-            throw new ValidationNotFoundException(String.format("userId=%s не найден.", id));
-        userStorage.remove(id);
+        if (!userRepository.existsById(id)) throw new ValidationNotFoundException(String
+                .format("userId=%s не найден.", id));
+        userRepository.deleteById(id);
     }
 
 }
