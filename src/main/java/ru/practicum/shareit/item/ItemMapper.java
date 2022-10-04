@@ -40,7 +40,7 @@ public class ItemMapper {
     public Item toItem(ItemDto itemDto, User owner, ItemRequest request) {
         // Проверки на null в сервисе.
         return Item.builder()
-//                .id(itemDto.getId())
+                .id(itemDto.getId())
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
