@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import ru.practicum.shareit.marker.Create;
 import ru.practicum.shareit.marker.Update;
 
@@ -13,6 +14,7 @@ import javax.validation.constraints.Pattern;
 
 @Getter
 @Setter
+@ToString
 @Builder
 public class UserDto {
     private Long id;

@@ -21,9 +21,6 @@ import ru.practicum.shareit.marker.Update;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-/**
- *
- */
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -34,7 +31,8 @@ public class ItemController {
     @PostMapping
     public ItemDto add(@RequestHeader("X-Sharer-User-Id") Long ownerId,
                        @Validated({Create.class}) @RequestBody ItemDto itemDto) {
-        log.info("Начато выполнение \"Создать вещь\".");
+        log.info(String.format("Начато выполнение \"Создать вещь\". " +
+                "ownerID=%s, RequestBody=%s", ownerId, itemDto));
         return itemService.add(itemDto, ownerId);
     }
 
@@ -42,28 +40,30 @@ public class ItemController {
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long ownerId,
                           @PathVariable Long itemId,
                           @Validated({Update.class}) @RequestBody ItemDto itemDto) {
-        log.info("Начато выполнение \"Обновить вещь\".");
+        log.info(String.format("Начато выполнение \"Обновить вещь\". " +
+                ", ownerID=%s, itemID=%s, RequestBody=%s", ownerId, itemId, itemDto));
         return itemService.update(itemDto, itemId, ownerId);
     }
 
     @GetMapping("/{itemId}")
     public ItemViewDto getById(@RequestHeader("X-Sharer-User-Id") Long requesterId,
                                @PathVariable Long itemId) {
-        log.info("Начато выполнение \"Получить вещь по ID\".");
+        log.info(String.format("Начато выполнение \"Получить вещь по ID\". " +
+                "itemID=%s, requesterID=%s", itemId, requesterId));
         return itemService.getById(itemId, requesterId);
     }
 
     @GetMapping
     public List<ItemViewDto> getListByOwner(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
-        log.info("Начато выполнение \"Получить все вещи владельца\".");
+        log.info(String.format("Начато выполнение \"Получить все вещи владельца\". " +
+                "ownerID=%s", ownerId));
         return itemService.getListByOwner(ownerId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> findItems(@RequestParam @NotNull String text) {
-        //TODO  В ТЗ явно не указано, надо ли исключать часть данных, например, владелец.
-        //      При необходимости заменить на ItemViewDto.
-        log.info("Начато выполнение \"Найти вещь\".");
+        log.info(String.format("Начато выполнение \"Найти вещь\". " +
+                "text=%s", text));
         return itemService.findItems(text);
     }
 
@@ -71,7 +71,8 @@ public class ItemController {
     public CommentDto addComment(@RequestHeader("X-Sharer-User-Id") Long userId,
                                  @PathVariable Long itemId,
                                  @Validated({Create.class}) @RequestBody CommentDto commentDto) {
-        log.info("Начато выполнение \"Добавить комментарий\".");
+        log.info(String.format("Начато выполнение \"Добавить комментарий\". " +
+                "itemID=%s, userID=%s, RequestBody=%s", itemId, userId, commentDto));
         return itemService.addComment(commentDto, itemId, userId);
     }
 }

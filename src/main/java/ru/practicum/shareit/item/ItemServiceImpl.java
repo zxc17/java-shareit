@@ -39,8 +39,6 @@ public class ItemServiceImpl implements ItemService {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new ValidationNotFoundException(String
                         .format("Владелец ID=%s не найден.", ownerId)));
-        //TODO В следующих спринтах понадобится добавить запись в requestRepository?
-        // Или наоборот, из request добавляется item?
         ItemRequest request = itemDto.getRequestId() != null ?
                 requestRepository.findById(itemDto.getRequestId()).orElse(null) : null;
         Item item = itemMapper.toItem(itemDto, owner, request);

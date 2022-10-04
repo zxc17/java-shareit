@@ -21,9 +21,6 @@ import ru.practicum.shareit.marker.Create;
 
 import java.util.List;
 
-/**
- *
- */
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -34,7 +31,8 @@ public class BookingController {
     @PostMapping
     public BookingDto add(@RequestHeader("X-Sharer-User-Id") Long bookerId,
                           @Validated({Create.class}) @RequestBody BookingInDto bookingInDto) {
-        log.info("Начато выполнение \"Создать бронирование\".");
+        log.info(String.format("Начато выполнение \"Создать бронирование\". " +
+                        "bookerId=%s; RequestBody=%s", bookerId, bookingInDto));
         bookingInDto.setBookerId(bookerId);
         bookingInDto.setStatus(BookingStatus.WAITING);
         return bookingService.add(bookingInDto);
@@ -44,21 +42,24 @@ public class BookingController {
     public BookingDto confirm(@RequestHeader("X-Sharer-User-Id") Long ownerId,
                               @PathVariable Long bookingId,
                               @RequestParam Boolean approved) {
-        log.info("Начато выполнение \"Подтверждение/отклонение бронирования\".");
+        log.info(String.format("Начато выполнение \"Подтверждение/отклонение бронирования\". " +
+                "ownerID=%s, bookingID=%s approved=%s", ownerId, bookingId, approved));
         return bookingService.confirm(bookingId, approved, ownerId);
     }
 
     @GetMapping("/{bookingId}")
     public BookingDto find(@RequestHeader("X-Sharer-User-Id") Long requesterId,
                            @PathVariable Long bookingId) {
-        log.info("Начато выполнение \"Найти бронирование\".");
+        log.info(String.format("Начато выполнение \"Найти бронирование\". " +
+                "requesterID=%s, bookingID=%s", requesterId, bookingId));
         return bookingService.find(bookingId, requesterId);
     }
 
     @GetMapping
     public List<BookingDto> findByUser(@RequestHeader("X-Sharer-User-Id") Long bookerId,
                                        @RequestParam(defaultValue = "ALL", required = false) String state) {
-        log.info("Начато выполнение \"Найти бронирования пользователя\".");
+        log.info(String.format("Начато выполнение \"Найти бронирования пользователя\". " +
+                "bookerID=%s, state=%s", bookerId, state));
         FindStatus stateEnum;
         try {
             stateEnum = FindStatus.valueOf(state);
@@ -71,7 +72,8 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingDto> findItemsForUser(@RequestHeader("X-Sharer-User-Id") Long ownerId,
                                              @RequestParam(defaultValue = "ALL", required = false) String state) {
-        log.info("Начато выполнение \"Найти бронирования вещей пользователя\".");
+        log.info(String.format("Начато выполнение \"Найти бронирования вещей пользователя\". " +
+                "ownerID=%s, state=%s", ownerId, state));
         FindStatus stateEnum;
         try {
             stateEnum = FindStatus.valueOf(state);

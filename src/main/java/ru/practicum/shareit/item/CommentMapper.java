@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 @Component
@@ -26,7 +27,7 @@ public class CommentMapper {
                 .text(comment.getText())
                 .itemId(comment.getItemId())
                 .authorId(comment.getAuthorId())
-                .authorName(userRepository.findById(comment.getAuthorId()).get().getName())
+                .authorName(userRepository.findById(comment.getAuthorId()).map(User::getName).orElse(null))
                 .created(comment.getCreated())
                 .build();
     }

@@ -15,10 +15,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 
-/**
- *
- */
 @Entity
 @Table(name = "requests")
 @Getter
@@ -40,7 +38,6 @@ public class ItemRequest {
     @JoinColumn(name = "requester_id", nullable = false)
     private User requester;
 
-//TODO Поле было в прошлом ТЗ, но в текущем ТЗ в описании таблиц - отсутствует. Непонятно, нужно ли оно.
-//    @Column(name = "")
-//    private LocalDateTime created;
+    @Column(name = "created", nullable = false)
+    private LocalDateTime created;
 }
