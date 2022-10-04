@@ -8,8 +8,8 @@ import ru.practicum.shareit.marker.Create;
 import ru.practicum.shareit.marker.Update;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.time.LocalDateTime;
 
 /**
  * Общий DTO.
@@ -18,22 +18,19 @@ import javax.validation.constraints.Pattern;
 @Setter
 @ToString
 @Builder
-public class ItemDto {
+public class CommentDto {
 
     private Long id;
 
     @NotBlank(groups = {Create.class})
     @Pattern(regexp = ".*\\S.*", groups = {Update.class})  //Хотя бы один не пробельный символ, либо null.
-    private String name;
+    private String text;
 
-    @NotBlank(groups = {Create.class})
-    @Pattern(regexp = ".*\\S.*", groups = {Update.class})
-    private String description;
+    private Long itemId;    // Приходит в переменной пути.
 
-    @NotNull(groups = {Create.class})
-    private Boolean available;
+    private Long authorId;  // Приходит в заголовке.
 
-    private Long ownerId;   // Приходит в заголовке, а не в теле, поэтому не проверяем.
+    private String authorName;
 
-    private Long requestId; // Не обязательный.
+    private LocalDateTime created;
 }

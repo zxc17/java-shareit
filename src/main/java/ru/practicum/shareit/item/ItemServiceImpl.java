@@ -2,66 +2,79 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.exception.ValidationDataException;
 import ru.practicum.shareit.exception.ValidationForbiddenException;
 import ru.practicum.shareit.exception.ValidationNotFoundException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemViewDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.request.RequestStorage;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserStorage;
+import ru.practicum.shareit.user.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    private final ItemStorage itemStorage;
-    private final UserStorage userStorage;
-    private final RequestStorage requestStorage;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final ItemRequestRepository requestRepository;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
+    private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
 
     @Override
     public ItemDto add(ItemDto itemDto, Long ownerId) {
-        User owner = userStorage.getById(ownerId);
-        if (owner == null) throw new ValidationNotFoundException(String
-                .format("Владелец ID=%s не найден.", ownerId));
-        //TODO В следующих спринтах понадобится добавить запись в requestStorage.
-        ItemRequest request = itemDto.getRequestId() != null ? requestStorage.getById(itemDto.getRequestId()) : null;
-        Item item = ItemMapper.toItem(itemDto, owner, request);
-        item = itemStorage.add(item);
-        return ItemMapper.toItemDto(item);
+        User owner = userRepository.findById(ownerId)
+                .orElseThrow(() -> new ValidationNotFoundException(String
+                        .format("Владелец ID=%s не найден.", ownerId)));
+        ItemRequest request = itemDto.getRequestId() != null ?
+                requestRepository.findById(itemDto.getRequestId()).orElse(null) : null;
+        Item item = itemMapper.toItem(itemDto, owner, request);
+        item = itemRepository.save(item);
+        return itemMapper.toItemDto(item);
     }
 
     @Override
-    public ItemDto getById(Long itemId) {
-        Item item = itemStorage.getById(itemId);
-        if (item == null) throw new ValidationNotFoundException(String
-                .format("Вещь ID=%s не найдена.", itemId));
-        return ItemMapper.toItemDto(item);
+    public ItemViewDto getById(Long itemId, Long requesterId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ValidationNotFoundException(String
+                        .format("Вещь ID=%s не найдена.", itemId)));
+        // Если запрос от владельца вещи, то нужно добавить инфу о последнем и ближайшем бронированиях.
+        boolean isAddBookingDate = item.getOwner().getId().equals(requesterId);
+        return itemMapper.toItemViewDto(item, isAddBookingDate);
     }
 
     @Override
     public List<ItemViewDto> getListByOwner(Long ownerId) {
-        User owner = userStorage.getById(ownerId);
-        if (owner == null) throw new ValidationNotFoundException(String
+        if (!userRepository.existsById(ownerId)) throw new ValidationNotFoundException(String
                 .format("Владелец ID=%s не найден.", ownerId));
-        List<Item> itemsByOwner = itemStorage.getListByOwner(owner);
+        List<Item> itemsByOwner = itemRepository.findByOwner_Id(ownerId);
         return itemsByOwner.stream()
-                .map(ItemMapper::toItemViewDto)
+                .sorted(Comparator.comparing(Item::getId))
+                .map(item -> itemMapper.toItemViewDto(item, true))
                 .collect(Collectors.toList());
     }
 
     @Override
     public ItemDto update(ItemDto itemDto, Long itemId, Long ownerId) {
-        User owner = userStorage.getById(ownerId);
-        if (owner == null) throw new ValidationNotFoundException(String
-                .format("Владелец ID=%s не найден.", ownerId));
-        Item item = itemStorage.getById(itemId);
-        if (item == null) throw new ValidationNotFoundException(String
-                .format("Вещь ID=%s не найдена.", itemId));
+        if (!userRepository.existsById(ownerId))
+            throw new ValidationNotFoundException(String
+                    .format("Владелец ID=%s не найден.", ownerId));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ValidationNotFoundException(String
+                        .format("Вещь ID=%s не найдена.", itemId)));
         if (!item.getOwner().getId().equals(ownerId)) throw new ValidationForbiddenException(String
                 .format("Невозможно обновить. Вещь принадлежит владельцу ID=%s, запрос прислан от ID=%s.",
                         item.getOwner().getId(), ownerId));
@@ -69,16 +82,37 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getDescription() != null) item.setDescription(itemDto.getDescription());
         if (itemDto.getAvailable() != null) item.setAvailable(itemDto.getAvailable());
         //TODO Владельца обновлять не нужно, а с полем request неясно... Будет уточнено в следующих спринтах.
-        item = itemStorage.update(item);
-        return ItemMapper.toItemDto(item);
+        item = itemRepository.save(item);
+        return itemMapper.toItemDto(item);
     }
 
     @Override
     public List<ItemDto> findItems(String text) {
         if (text.isEmpty()) return Collections.emptyList();
-        List<Item> items = itemStorage.findItems(text);
+        List<Item> items = itemRepository
+                .findByNameOrDescriptionContainingIgnoreCaseAndAvailableIsTrue(text, text);
         return items.stream()
-                .map(ItemMapper::toItemDto)
+                .filter(Item::getAvailable)
+                .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CommentDto addComment(CommentDto commentDto, Long itemId, Long userId) {
+        if (!userRepository.existsById(userId))
+            throw new ValidationNotFoundException(String
+                    .format("Пользователь ID=%s не найден.", userId));
+        if (!itemRepository.existsById(itemId))
+            throw new ValidationNotFoundException(String
+                    .format("Вещь ID=%s не найдена.", itemId));
+        if (bookingRepository.countingUsages(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now()).size() == 0)
+            throw new ValidationDataException(String
+                    .format("Пользователь ID=%s не пользовался вещью ID=%s.", userId, itemId));
+        commentDto.setItemId(itemId);
+        commentDto.setAuthorId(userId);
+        commentDto.setCreated(LocalDateTime.now());
+        Comment comment = commentMapper.toComment(commentDto);
+        commentRepository.save(comment);
+        return commentMapper.toCommentDto(comment);
     }
 }
