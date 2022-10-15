@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -57,10 +59,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemViewDto> getListByOwner(Long ownerId) {
+    public List<ItemViewDto> getListByOwner(Long ownerId, Long from, Integer size) {
         if (!userRepository.existsById(ownerId)) throw new ValidationNotFoundException(String
                 .format("Владелец ID=%s не найден.", ownerId));
-        List<Item> itemsByOwner = itemRepository.findByOwner_Id(ownerId);
+        int page = Math.toIntExact(from / size);
+        Pageable pageable = PageRequest.of(page, size);
+        List<Item> itemsByOwner = itemRepository.findByOwner_Id(ownerId, pageable);
         return itemsByOwner.stream()
                 .sorted(Comparator.comparing(Item::getId))
                 .map(item -> itemMapper.toItemViewDto(item, true))
@@ -81,16 +85,17 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getName() != null) item.setName(itemDto.getName());
         if (itemDto.getDescription() != null) item.setDescription(itemDto.getDescription());
         if (itemDto.getAvailable() != null) item.setAvailable(itemDto.getAvailable());
-        //TODO Владельца обновлять не нужно, а с полем request неясно... Будет уточнено в следующих спринтах.
         item = itemRepository.save(item);
         return itemMapper.toItemDto(item);
     }
 
     @Override
-    public List<ItemDto> findItems(String text) {
+    public List<ItemDto> findItems(String text, Long from, Integer size) {
         if (text.isEmpty()) return Collections.emptyList();
-        List<Item> items = itemRepository
-                .findByNameOrDescriptionContainingIgnoreCaseAndAvailableIsTrue(text, text);
+        int page = Math.toIntExact(from / size);
+        Pageable pageable = PageRequest.of(page, size);
+        List<Item> items = itemRepository.findByNameOrDescriptionContainingIgnoreCaseAndAvailableIsTrue(
+                text, text, pageable);
         return items.stream()
                 .filter(Item::getAvailable)
                 .map(itemMapper::toItemDto)

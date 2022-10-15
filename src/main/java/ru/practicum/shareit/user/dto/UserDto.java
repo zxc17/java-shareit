@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.dto;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,13 +15,17 @@ import javax.validation.constraints.Pattern;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 @ToString
 @Builder
 public class UserDto {
+
     private Long id;
+
     @NotBlank(groups = {Create.class})
     @Pattern(regexp = "^\\S+$", groups = {Update.class})    // Запрет пробельных символов и пустых строк, разрешен null.
     private String name;
+
     @NotNull(groups = {Create.class})
     @Email(groups = {Create.class, Update.class})
     @Pattern(regexp = "^\\S+$", groups = {Create.class, Update.class})

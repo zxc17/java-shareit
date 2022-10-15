@@ -9,6 +9,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemViewDto;
+import ru.practicum.shareit.item.dto.ItemViewForRequestDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
@@ -88,6 +89,20 @@ public class ItemMapper {
                 .lastBooking(lastBooking)
                 .nextBooking(nextBooking)
                 .comments(comments)
+                .build();
+    }
+
+    public ItemViewForRequestDto toItemViewForRequestDto(Item item) {
+        return ItemViewForRequestDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+//                .comments(commentRepository.findByItemId(item.getId())
+//                        .stream()
+//                        .map(commentMapper::toCommentDto)
+//                        .collect(Collectors.toList()))
+                .requestId(item.getRequest().getId())
                 .build();
     }
 }

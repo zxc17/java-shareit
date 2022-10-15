@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
@@ -10,17 +11,18 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    List<Booking> findByBooker_Id(Long bookerId);
+    List<Booking> findByBooker_Id(Long bookerId, Pageable pageable);
 
-    List<Booking> findByBooker_IdAndStatus(Long bookerId, BookingStatus status);
+    List<Booking> findByBooker_IdAndStatus(Long bookerId, BookingStatus status, Pageable pageable);
 
-    List<Booking> findByBooker_IdAndStartBeforeAndEndAfter(Long bookerId, LocalDateTime start, LocalDateTime end);
+    List<Booking> findByBooker_IdAndStartBeforeAndEndAfter(
+            Long bookerId, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
-    List<Booking> findByBooker_IdAndEndBefore(Long bookerId, LocalDateTime end);
+    List<Booking> findByBooker_IdAndEndBefore(Long bookerId, LocalDateTime end, Pageable pageable);
 
-    List<Booking> findByBooker_IdAndStartAfter(Long bookerId, LocalDateTime start);
+    List<Booking> findByBooker_IdAndStartAfter(Long bookerId, LocalDateTime start, Pageable pageable);
 
-    List<Booking> findByItem_Owner_Id(Long ownerId);
+    List<Booking> findByItem_Owner_Id(Long ownerId, Pageable pageable);
 
     List<Booking> findByItem_Id(Long itemId);
 
@@ -28,18 +30,19 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "from Booking b " +
             "where b.id <> ?1 and " +
             "      b.item.id = ?4 and " +
-            "      b.start between ?2 and ?3 and " +
-            "      b.end between ?2 and ?3 ")
+            "      (b.start between ?2 and ?3 or " +
+            "      b.end between ?2 and ?3) ")
         // Ищет пересечения таймслотов для выбранной вещи.
     List<Booking> findBusyTimeSlot(Long bookingId, LocalDateTime start, LocalDateTime end, Long itemId);
 
-    List<Booking> findByItem_Owner_IdAndStartBeforeAndEndAfter(Long ownerId, LocalDateTime start, LocalDateTime end);
+    List<Booking> findByItem_Owner_IdAndStartBeforeAndEndAfter(
+            Long ownerId, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
-    List<Booking> findByItem_Owner_IdAndEndBefore(Long ownerId, LocalDateTime end);
+    List<Booking> findByItem_Owner_IdAndEndBefore(Long ownerId, LocalDateTime end, Pageable pageable);
 
-    List<Booking> findByItem_Owner_IdAndStartAfter(Long ownerId, LocalDateTime start);
+    List<Booking> findByItem_Owner_IdAndStartAfter(Long ownerId, LocalDateTime start, Pageable pageable);
 
-    List<Booking> findByItem_Owner_IdAndStatus(Long ownerId, BookingStatus status);
+    List<Booking> findByItem_Owner_IdAndStatus(Long ownerId, BookingStatus status, Pageable pageable);
 
     /**
      * Поиск броней вещи выбранным пользователем в указанном статусе, завершенных ранее указанного срока.

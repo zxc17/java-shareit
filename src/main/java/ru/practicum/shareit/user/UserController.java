@@ -26,15 +26,15 @@ public class UserController {
 
     @PostMapping
     public UserDto add(@Validated({Create.class}) @RequestBody UserDto userDto) {
-        log.info(String.format("Начато выполнение \"Создать пользователя\". " +
-                "RequestBody=%s", userDto));
+        log.info("Начато выполнение \"Создать пользователя\". " +
+                "RequestBody={}", userDto);
         return userService.add(userDto);
     }
 
     @GetMapping("/{id}")
     public UserDto getById(@PathVariable Long id) {
-        log.info(String.format("Начато выполнение \"Получить пользователя по ID\". " +
-                "userID=%s", id));
+        log.info("Начато выполнение \"Получить пользователя по ID\". " +
+                "userID={}", id);
         return userService.getById(id);
     }
 
@@ -47,15 +47,15 @@ public class UserController {
     @PatchMapping("/{id}")
     public UserDto update(@PathVariable Long id,
                           @Validated({Update.class}) @RequestBody UserDto userDto) {
-        log.info(String.format("Начато выполнение \"Обновить данные пользователя по ID\". " +
-                "userID=%s, RequestBody=%s", id, userDto));
+        log.info("Начато выполнение \"Обновить данные пользователя по ID\". " +
+                "userID={}, RequestBody={}", id, userDto);
         return userService.update(id, userDto);
     }
 
     @DeleteMapping("/{id}")
     public void remove(@PathVariable Long id) {
-        log.info(String.format("Начато выполнение \"Удалить пользователя по ID\". " +
-                "userID=%s", id));
+        log.info("Начато выполнение \"Удалить пользователя по ID\". " +
+                "userID={}", id);
         userService.remove(id);
     }
 }
