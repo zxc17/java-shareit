@@ -61,8 +61,8 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> findByUser(@RequestHeader("X-Sharer-User-Id") Long bookerId,
                                        @RequestParam(defaultValue = "ALL", required = false) String state,
-                                       @RequestParam(name = "from", defaultValue = "0") Long from,
-                                       @RequestParam(name = "size", defaultValue = "10") Integer size) {
+                                       @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Long from,
+                                       @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Начато выполнение \"Найти бронирования пользователя\". " +
                 "bookerID={}, state={}, from={}, size={}", bookerId, state, from, size);
         FindStatus stateEnum;
