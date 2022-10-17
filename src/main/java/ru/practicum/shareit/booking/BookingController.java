@@ -65,8 +65,6 @@ public class BookingController {
                                        @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Начато выполнение \"Найти бронирования пользователя\". " +
                 "bookerID={}, state={}, from={}, size={}", bookerId, state, from, size);
-        if (from < 0 || size <= 0) throw new ValidationDataException(String
-                .format("Некорректный запрос. from=%s; size=%s", from, size));
         FindStatus stateEnum;
         try {
             stateEnum = FindStatus.valueOf(state);
