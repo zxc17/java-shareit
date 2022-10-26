@@ -13,7 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 
@@ -34,10 +34,11 @@ public class ItemRequest {
     @Column(name = "description", length = 1024, nullable = false)
     private String description;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "requester_id", nullable = false)
     private User requester;
 
     @Column(name = "created", nullable = false)
     private LocalDateTime created;
+
 }

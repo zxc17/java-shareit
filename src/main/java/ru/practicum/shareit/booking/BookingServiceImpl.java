@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInDto;
@@ -16,7 +19,6 @@ import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,7 +54,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto confirm(Long bookingId, Boolean approved, Long ownerId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ValidationNotFoundException(String
-                        .format("Бронь ID=%s не найдена", bookingId)));
+                        .format("Бронь ID=%s не найдена.", bookingId)));
         if (!userRepository.existsById(ownerId))
             throw new ValidationNotFoundException(String
                     .format("Владелец ID=%s не найден.", ownerId));
@@ -83,7 +85,7 @@ public class BookingServiceImpl implements BookingService {
                     .format("Пользователь ID=%s не найден.", requesterId));
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ValidationNotFoundException(String
-                        .format("Бронь ID=%s не найдена", bookingId)));
+                        .format("Бронь ID=%s не найдена.", bookingId)));
         if (!booking.getItem().getOwner().getId().equals(requesterId) &&
                 !booking.getBooker().getId().equals(requesterId))
             //TODO По тестам ожидается 404 ошибка, на мой взгляд должна быть 403.
@@ -93,71 +95,73 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> findByUser(FindStatus state, Long bookerId) {
+    public List<BookingDto> findByUser(FindStatus state, Long bookerId, Long from, Integer size) {
         if (!userRepository.existsById(bookerId))
             throw new ValidationNotFoundException(String
                     .format("Пользователь ID=%s не найден.", bookerId));
         List<Booking> bookingList;
         LocalDateTime now = LocalDateTime.now();
+        int page = Math.toIntExact(from / size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("start").descending());
         switch (state) {
             case CURRENT:
-                bookingList = bookingRepository.findByBooker_IdAndStartBeforeAndEndAfter(bookerId, now, now);
+                bookingList = bookingRepository.findByBooker_IdAndStartBeforeAndEndAfter(bookerId, now, now, pageable);
                 break;
             case PAST:
-                bookingList = bookingRepository.findByBooker_IdAndEndBefore(bookerId, now);
+                bookingList = bookingRepository.findByBooker_IdAndEndBefore(bookerId, now, pageable);
                 break;
             case FUTURE:
-                bookingList = bookingRepository.findByBooker_IdAndStartAfter(bookerId, now);
+                bookingList = bookingRepository.findByBooker_IdAndStartAfter(bookerId, now, pageable);
                 break;
             case WAITING:
-                bookingList = bookingRepository.findByBooker_IdAndStatus(bookerId, BookingStatus.WAITING);
+                bookingList = bookingRepository.findByBooker_IdAndStatus(bookerId, BookingStatus.WAITING, pageable);
                 break;
             case REJECTED:
-                bookingList = bookingRepository.findByBooker_IdAndStatus(bookerId, BookingStatus.REJECTED);
+                bookingList = bookingRepository.findByBooker_IdAndStatus(bookerId, BookingStatus.REJECTED, pageable);
                 break;
             case ALL:
-                bookingList = bookingRepository.findByBooker_Id(bookerId);
+                bookingList = bookingRepository.findByBooker_Id(bookerId, pageable);
                 break;
             default:
                 bookingList = Collections.emptyList();
         }
         return bookingList.stream()
-                .sorted(Comparator.comparing(Booking::getStart).reversed())
                 .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<BookingDto> findItemsForUser(FindStatus state, Long ownerId) {
+    public List<BookingDto> findItemsForUser(FindStatus state, Long ownerId, Long from, Integer size) {
         if (!userRepository.existsById(ownerId))
             throw new ValidationNotFoundException(String
                     .format("Пользователь ID=%s не найден.", ownerId));
         List<Booking> bookingList;
         LocalDateTime now = LocalDateTime.now();
+        int page = Math.toIntExact(from / size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("start").descending());
         switch (state) {
             case CURRENT:
-                bookingList = bookingRepository.findByItem_Owner_IdAndStartBeforeAndEndAfter(ownerId, now, now);
+                bookingList = bookingRepository.findByItem_Owner_IdAndStartBeforeAndEndAfter(ownerId, now, now, pageable);
                 break;
             case PAST:
-                bookingList = bookingRepository.findByItem_Owner_IdAndEndBefore(ownerId, now);
+                bookingList = bookingRepository.findByItem_Owner_IdAndEndBefore(ownerId, now, pageable);
                 break;
             case FUTURE:
-                bookingList = bookingRepository.findByItem_Owner_IdAndStartAfter(ownerId, now);
+                bookingList = bookingRepository.findByItem_Owner_IdAndStartAfter(ownerId, now, pageable);
                 break;
             case WAITING:
-                bookingList = bookingRepository.findByItem_Owner_IdAndStatus(ownerId, BookingStatus.WAITING);
+                bookingList = bookingRepository.findByItem_Owner_IdAndStatus(ownerId, BookingStatus.WAITING, pageable);
                 break;
             case REJECTED:
-                bookingList = bookingRepository.findByItem_Owner_IdAndStatus(ownerId, BookingStatus.REJECTED);
+                bookingList = bookingRepository.findByItem_Owner_IdAndStatus(ownerId, BookingStatus.REJECTED, pageable);
                 break;
             case ALL:
-                bookingList = bookingRepository.findByItem_Owner_Id(ownerId);
+                bookingList = bookingRepository.findByItem_Owner_Id(ownerId, pageable);
                 break;
             default:
                 bookingList = Collections.emptyList();
         }
         return bookingList.stream()
-                .sorted(Comparator.comparing(Booking::getStart).reversed())
                 .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }

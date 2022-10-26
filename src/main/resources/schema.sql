@@ -1,4 +1,4 @@
--- DROP TABLE IF EXISTS comments, bookings, items, requests, users CASCADE;
+DROP TABLE IF EXISTS comments, bookings, items, requests, users CASCADE;
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -56,4 +56,3 @@ CREATE TABLE IF NOT EXISTS comments
     CONSTRAINT c_item FOREIGN KEY (item_id) REFERENCES items (item_id) ON DELETE CASCADE,
     CONSTRAINT author FOREIGN KEY (author_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
-
