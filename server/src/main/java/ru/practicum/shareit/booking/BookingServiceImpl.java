@@ -99,7 +99,7 @@ public class BookingServiceImpl implements BookingService {
         if (!userRepository.existsById(bookerId))
             throw new ValidationNotFoundException(String
                     .format("Пользователь ID=%s не найден.", bookerId));
-        List<Booking> bookingList;
+        List<Booking> bookingList = Collections.emptyList();
         LocalDateTime now = LocalDateTime.now();
         int page = Math.toIntExact(from / size);
         Pageable pageable = PageRequest.of(page, size, Sort.by("start").descending());
@@ -122,8 +122,6 @@ public class BookingServiceImpl implements BookingService {
             case ALL:
                 bookingList = bookingRepository.findByBooker_Id(bookerId, pageable);
                 break;
-            default:
-                bookingList = Collections.emptyList();
         }
         return bookingList.stream()
                 .map(bookingMapper::toBookingDto)
@@ -135,7 +133,7 @@ public class BookingServiceImpl implements BookingService {
         if (!userRepository.existsById(ownerId))
             throw new ValidationNotFoundException(String
                     .format("Пользователь ID=%s не найден.", ownerId));
-        List<Booking> bookingList;
+        List<Booking> bookingList = Collections.emptyList();
         LocalDateTime now = LocalDateTime.now();
         int page = Math.toIntExact(from / size);
         Pageable pageable = PageRequest.of(page, size, Sort.by("start").descending());
@@ -158,8 +156,6 @@ public class BookingServiceImpl implements BookingService {
             case ALL:
                 bookingList = bookingRepository.findByItem_Owner_Id(ownerId, pageable);
                 break;
-            default:
-                bookingList = Collections.emptyList();
         }
         return bookingList.stream()
                 .map(bookingMapper::toBookingDto)
@@ -169,10 +165,10 @@ public class BookingServiceImpl implements BookingService {
     private void checkTimeSlot(Booking booking) {
         if (booking.getEnd().isBefore(booking.getStart()))
             throw new ValidationDataException("Выбранное время старта бронирования позже окончания.");
-        if (booking.getStart().isBefore(LocalDateTime.now()))
-            throw new ValidationDataException("Выбранное время старта бронирования в прошлом.");
         if (booking.getEnd().isBefore(LocalDateTime.now()))
             throw new ValidationDataException("Выбранное время окончания бронирования в прошлом.");
+        if (booking.getStart().isBefore(LocalDateTime.now()))
+            throw new ValidationDataException("Выбранное время старта бронирования в прошлом.");
         if (bookingRepository.findBusyTimeSlot(
                         booking.getId(), booking.getStart(), booking.getEnd(), booking.getItem().getId())
                 .stream().anyMatch(b -> b.getStatus() == BookingStatus.APPROVED))

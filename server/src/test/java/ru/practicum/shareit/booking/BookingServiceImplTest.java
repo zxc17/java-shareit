@@ -194,6 +194,70 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void add_failTimeStart() {
+        // Assign
+        LocalDateTime now = LocalDateTime.now();
+        BookingInDto bookingInDto = BookingInDto.builder()
+                .start(now.minusMinutes(1))
+                .end(now.plusMinutes(2))
+                .itemId(item.getId())
+                .bookerId(booker.getId())
+                .status(BookingStatus.WAITING)
+                .build();
+
+        // Act
+        var result = assertThrows(ValidationDataException.class,
+                () -> bookingService.add(bookingInDto));
+
+        // Assert
+        assertEquals(result.getMessage(), "Выбранное время старта бронирования в прошлом.");
+
+    }
+
+    @Test
+    void add_failTimeEnd() {
+        // Assign
+        LocalDateTime now = LocalDateTime.now();
+        BookingInDto bookingInDto = BookingInDto.builder()
+                .start(now.minusMinutes(2))
+                .end(now.minusMinutes(1))
+                .itemId(item.getId())
+                .bookerId(booker.getId())
+                .status(BookingStatus.WAITING)
+                .build();
+
+        // Act
+        var result = assertThrows(ValidationDataException.class,
+                () -> bookingService.add(bookingInDto));
+
+        // Assert
+        assertEquals(result.getMessage(), "Выбранное время окончания бронирования в прошлом.");
+
+    }
+
+    @Test
+    void add_failTimeEndBeforeStart() {
+        // Assign
+        LocalDateTime now = LocalDateTime.now();
+        BookingInDto bookingInDto = BookingInDto.builder()
+                .start(now.plusMinutes(3))
+                .end(now.plusMinutes(2))
+                .itemId(item.getId())
+                .bookerId(booker.getId())
+                .status(BookingStatus.WAITING)
+                .build();
+
+        // Act
+        var result = assertThrows(ValidationDataException.class,
+                () -> bookingService.add(bookingInDto));
+
+        // Assert
+        assertEquals(result.getMessage(), "Выбранное время старта бронирования позже окончания.");
+
+    }
+
+
+    @Test
     void confirm_ok() {
         // Assign
         LocalDateTime now = LocalDateTime.now();

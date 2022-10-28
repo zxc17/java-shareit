@@ -203,19 +203,6 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$[1].status").value(bookingDto2.getStatus().toString()));
     }
 
-//    @Test
-//    void findByUser_fail() throws Exception {
-//        // Assign
-//
-//        // Act
-//        mockMvc.perform(get("/bookings?state=wrong")
-//                        .header(headerId, 2L)
-//                        .contentType(MediaType.APPLICATION_JSON))
-//
-//                // Assert
-//                .andExpect(status().isBadRequest());
-//    }
-
     @Test
     void findItemsForUser() throws Exception {
         // Assign
@@ -259,18 +246,5 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$[1].booker.id").value(bookingDto2.getBooker().getId()))
                 .andExpect(jsonPath("$[1].status").value(bookingDto2.getStatus().toString()));
     }
-
-//    @Test
-//    void findItemsForUser_fail() throws Exception {
-//        // Assign
-//
-//        // Act
-//        mockMvc.perform(get("/bookings/owner?state=wrong")
-//                        .header(headerId, 2L)
-//                        .contentType(MediaType.APPLICATION_JSON))
-//
-//                // Assert
-//                .andExpect(status().isBadRequest());
-//    }
 
 }
