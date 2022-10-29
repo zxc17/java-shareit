@@ -17,16 +17,17 @@ import ru.practicum.shareit.item.dto.ItemViewDto;
 
 import java.util.List;
 
+import static ru.practicum.shareit.util.Constants.HEADER_ID;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
     private final ItemService itemService;
-    private final String headerId = "X-Sharer-User-Id";
 
     @PostMapping
-    public ItemDto add(@RequestHeader(headerId) Long ownerId,
+    public ItemDto add(@RequestHeader(HEADER_ID) Long ownerId,
                        @RequestBody ItemDto itemDto) {
         log.info("Сервер принял запрос \"Создать вещь\". " +
                 "ownerID={}, RequestBody={}", ownerId, itemDto);
@@ -34,7 +35,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestHeader(headerId) Long ownerId,
+    public ItemDto update(@RequestHeader(HEADER_ID) Long ownerId,
                           @PathVariable Long itemId,
                           @RequestBody ItemDto itemDto) {
         log.info("Сервер принял запрос \"Обновить вещь\". " +
@@ -43,7 +44,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemViewDto getById(@RequestHeader(headerId) Long requesterId,
+    public ItemViewDto getById(@RequestHeader(HEADER_ID) Long requesterId,
                                @PathVariable Long itemId) {
         log.info("Сервер принял запрос \"Получить вещь по ID\". " +
                 "itemID={}, requesterID={}", itemId, requesterId);
@@ -51,7 +52,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemViewDto> getListByOwner(@RequestHeader(headerId) Long ownerId,
+    public List<ItemViewDto> getListByOwner(@RequestHeader(HEADER_ID) Long ownerId,
                                             @RequestParam(name = "from", defaultValue = "0") Long from,
                                             @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Сервер принял запрос \"Получить все вещи владельца\". " +
@@ -69,7 +70,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto addComment(@RequestHeader(headerId) Long userId,
+    public CommentDto addComment(@RequestHeader(HEADER_ID) Long userId,
                                  @PathVariable Long itemId,
                                  @RequestBody CommentDto commentDto) {
         log.info("Сервер принял запрос \"Добавить комментарий\". " +

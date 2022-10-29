@@ -30,6 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.util.Constants.HEADER_ID;
 
 @WebMvcTest(ItemController.class)
 @AutoConfigureMockMvc
@@ -40,7 +41,6 @@ class ItemControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
-    private final String headerId = "X-Sharer-User-Id";
 
     @Test
     void add() throws Exception {
@@ -61,7 +61,7 @@ class ItemControllerTest {
 
         // Act
         mockMvc.perform(post("/items")
-                        .header(headerId, owner.getId())
+                        .header(HEADER_ID, owner.getId())
                         .content(objectMapper.writeValueAsString(itemDto))
                         .contentType(MediaType.APPLICATION_JSON))
 
@@ -93,7 +93,7 @@ class ItemControllerTest {
 
         // Act
         mockMvc.perform(patch("/items/1")
-                        .header(headerId, owner.getId())
+                        .header(HEADER_ID, owner.getId())
                         .content(objectMapper.writeValueAsString(itemDto))
                         .contentType(MediaType.APPLICATION_JSON))
 
@@ -119,7 +119,7 @@ class ItemControllerTest {
 
         // Act
         mockMvc.perform(get("/items/1")
-                        .header(headerId, 33L)
+                        .header(HEADER_ID, 33L)
                         .content(objectMapper.writeValueAsString(itemViewDto))
                         .contentType(MediaType.APPLICATION_JSON))
 
@@ -156,7 +156,7 @@ class ItemControllerTest {
 
         // Act
         MvcResult r = mockMvc.perform(get("/items")
-                        .header(headerId, owner.getId())
+                        .header(HEADER_ID, owner.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
@@ -200,7 +200,7 @@ class ItemControllerTest {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(get("/items/search?text=orDle")
-                        .header(headerId, owner.getId())
+                        .header(HEADER_ID, owner.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
@@ -233,7 +233,7 @@ class ItemControllerTest {
 
         // Act
         mockMvc.perform(post("/items/1/comment")
-                        .header(headerId, 1L)
+                        .header(HEADER_ID, 1L)
                         .content(objectMapper.writeValueAsString(commentDto))
                         .contentType(MediaType.APPLICATION_JSON))
 

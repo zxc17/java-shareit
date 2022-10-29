@@ -14,16 +14,17 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import java.util.List;
 
+import static ru.practicum.shareit.util.Constants.HEADER_ID;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping(path = "/requests")
 public class ItemRequestController {
     private final ItemRequestService itemRequestService;
-    private final String headerId = "X-Sharer-User-Id";
 
     @PostMapping
-    public ItemRequestDto add(@RequestHeader(headerId) Long requesterId,
+    public ItemRequestDto add(@RequestHeader(HEADER_ID) Long requesterId,
                               @RequestBody ItemRequestDto itemRequestDto) {
         log.info("Сервер принял запрос \"Создать запрос\". " +
                 "requesterId={}; RequestBody={}", requesterId, itemRequestDto);
@@ -31,7 +32,7 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    public List<ItemRequestDto> getByRequester(@RequestHeader(headerId) Long requesterId) {
+    public List<ItemRequestDto> getByRequester(@RequestHeader(HEADER_ID) Long requesterId) {
         log.info("Сервер принял запрос \"Получить запросы пользователя\". " +
                 "requesterId={}", requesterId);
         return itemRequestService.getByRequester(requesterId);
@@ -39,7 +40,7 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<ItemRequestDto> getMadeByOther(
-            @RequestHeader(headerId) Long requesterId,
+            @RequestHeader(HEADER_ID) Long requesterId,
             @RequestParam(name = "from", defaultValue = "0") Long from,
             @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Сервер принял запрос \"Получить запросы других пользователей\". " +
@@ -48,7 +49,7 @@ public class ItemRequestController {
     }
 
     @GetMapping("/{requestId}")
-    public ItemRequestDto getById(@RequestHeader(headerId) Long requesterId,
+    public ItemRequestDto getById(@RequestHeader(HEADER_ID) Long requesterId,
                                   @PathVariable Long requestId) {
         log.info("Сервер принял запрос \"Получить запрос по ID\". " +
                 "requestId={}", requestId);

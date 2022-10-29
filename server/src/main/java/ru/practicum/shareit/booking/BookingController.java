@@ -17,16 +17,17 @@ import ru.practicum.shareit.booking.model.FindStatus;
 
 import java.util.List;
 
+import static ru.practicum.shareit.util.Constants.HEADER_ID;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping(path = "/bookings")
 public class BookingController {
     private final BookingService bookingService;
-    private final String headerId = "X-Sharer-User-Id";
 
     @PostMapping
-    public BookingDto add(@RequestHeader(headerId) Long bookerId,
+    public BookingDto add(@RequestHeader(HEADER_ID) Long bookerId,
                           @RequestBody BookingInDto bookingInDto) {
         log.info("Сервер принял запрос \"Создать бронирование\". " +
                 "bookerId={}; RequestBody={}", bookerId, bookingInDto);
@@ -34,7 +35,7 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingDto confirm(@RequestHeader(headerId) Long ownerId,
+    public BookingDto confirm(@RequestHeader(HEADER_ID) Long ownerId,
                               @PathVariable Long bookingId,
                               @RequestParam Boolean approved) {
         log.info("Сервер принял запрос \"Подтверждение/отклонение бронирования\". " +
@@ -43,7 +44,7 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDto find(@RequestHeader(headerId) Long requesterId,
+    public BookingDto find(@RequestHeader(HEADER_ID) Long requesterId,
                            @PathVariable Long bookingId) {
         log.info("Сервер принял запрос \"Найти бронирование\". " +
                 "requesterID={}, bookingID={}", requesterId, bookingId);
@@ -51,7 +52,7 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDto> findByUser(@RequestHeader(headerId) Long bookerId,
+    public List<BookingDto> findByUser(@RequestHeader(HEADER_ID) Long bookerId,
                                        @RequestParam(defaultValue = "ALL", required = false) String state,
                                        @RequestParam(name = "from", defaultValue = "0") Long from,
                                        @RequestParam(name = "size", defaultValue = "10") Integer size) {
@@ -63,7 +64,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> findItemsForUser(@RequestHeader(headerId) Long ownerId,
+    public List<BookingDto> findItemsForUser(@RequestHeader(HEADER_ID) Long ownerId,
                                              @RequestParam(defaultValue = "ALL", required = false) String state,
                                              @RequestParam(name = "from", defaultValue = "0") Long from,
                                              @RequestParam(name = "size", defaultValue = "10") Integer size) {

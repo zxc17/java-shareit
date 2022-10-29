@@ -22,6 +22,8 @@ import ru.practicum.shareit.marker.Create;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
+import static ru.practicum.shareit.util.Constants.HEADER_ID;
+
 @Controller
 @Slf4j
 @RequiredArgsConstructor
@@ -29,10 +31,9 @@ import javax.validation.constraints.PositiveOrZero;
 @Validated
 public class BookingController {
     private final BookingClient bookingClient;
-    private final String headerId = "X-Sharer-User-Id";
 
     @PostMapping
-    public ResponseEntity<Object> add(@RequestHeader(headerId) Long bookerId,
+    public ResponseEntity<Object> add(@RequestHeader(HEADER_ID) Long bookerId,
                                       @Validated({Create.class}) @RequestBody BookingInDto bookingInDto) {
         log.info("Начато выполнение \"Создать бронирование\". " +
                 "bookerId={}; RequestBody={}", bookerId, bookingInDto);
@@ -42,7 +43,7 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
-    public ResponseEntity<Object> confirm(@RequestHeader(headerId) Long ownerId,
+    public ResponseEntity<Object> confirm(@RequestHeader(HEADER_ID) Long ownerId,
                                           @PathVariable Long bookingId,
                                           @RequestParam Boolean approved) {
         log.info("Начато выполнение \"Подтверждение/отклонение бронирования\". " +
@@ -51,7 +52,7 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> find(@RequestHeader(headerId) Long requesterId,
+    public ResponseEntity<Object> find(@RequestHeader(HEADER_ID) Long requesterId,
                                        @PathVariable Long bookingId) {
         log.info("Начато выполнение \"Найти бронирование\". " +
                 "requesterID={}, bookingID={}", requesterId, bookingId);
@@ -59,7 +60,7 @@ public class BookingController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> findByUser(@RequestHeader(headerId) Long bookerId,
+    public ResponseEntity<Object> findByUser(@RequestHeader(HEADER_ID) Long bookerId,
                                              @RequestParam(defaultValue = "ALL", required = false) String state,
                                              @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Long from,
                                              @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
@@ -75,7 +76,7 @@ public class BookingController {
 
     @GetMapping("/owner")
     public ResponseEntity<Object> findItemsForUser(
-            @RequestHeader(headerId) Long ownerId,
+            @RequestHeader(HEADER_ID) Long ownerId,
             @RequestParam(defaultValue = "ALL", required = false) String state,
             @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Long from,
             @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {

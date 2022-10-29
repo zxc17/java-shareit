@@ -27,6 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.util.Constants.HEADER_ID;
 
 @WebMvcTest(BookingController.class)
 @AutoConfigureMockMvc
@@ -40,7 +41,6 @@ class BookingControllerTest {
     private User owner;
     private User booker;
     private Item item;
-    private final String headerId = "X-Sharer-User-Id";
 
     @BeforeEach
     void setUp() {
@@ -87,7 +87,7 @@ class BookingControllerTest {
 
         // Act
         mockMvc.perform(post("/bookings")
-                        .header(headerId, 3L)
+                        .header(HEADER_ID, 3L)
                         .content(objectMapper.writeValueAsString(bookingInDto))
                         .contentType(MediaType.APPLICATION_JSON))
 
@@ -117,7 +117,7 @@ class BookingControllerTest {
 
         // Act
         mockMvc.perform(patch("/bookings/1?approved=true")
-                        .header(headerId, 1L)
+                        .header(HEADER_ID, 1L)
                         .contentType(MediaType.APPLICATION_JSON))
 
                 // Assert
@@ -146,7 +146,7 @@ class BookingControllerTest {
 
         // Act
         mockMvc.perform(get("/bookings/1")
-                        .header(headerId, 1L)
+                        .header(HEADER_ID, 1L)
                         .contentType(MediaType.APPLICATION_JSON))
 
                 // Assert
@@ -184,7 +184,7 @@ class BookingControllerTest {
 
         // Act
         mockMvc.perform(get("/bookings")
-                        .header(headerId, 2L)
+                        .header(HEADER_ID, 2L)
                         .contentType(MediaType.APPLICATION_JSON))
 
                 // Assert
@@ -228,7 +228,7 @@ class BookingControllerTest {
 
         // Act
         mockMvc.perform(get("/bookings/owner")
-                        .header(headerId, 1L)
+                        .header(HEADER_ID, 1L)
                         .contentType(MediaType.APPLICATION_JSON))
 
                 // Assert

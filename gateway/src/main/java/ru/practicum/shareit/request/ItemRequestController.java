@@ -18,6 +18,8 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
+import static ru.practicum.shareit.util.Constants.HEADER_ID;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -25,10 +27,9 @@ import javax.validation.constraints.PositiveOrZero;
 @Validated
 public class ItemRequestController {
     private final ItemRequestClient itemRequestClient;
-    private final String headerId = "X-Sharer-User-Id";
 
     @PostMapping
-    public ResponseEntity<Object> add(@RequestHeader(headerId) Long requesterId,
+    public ResponseEntity<Object> add(@RequestHeader(HEADER_ID) Long requesterId,
                                       @Validated({Create.class}) @RequestBody ItemRequestDto itemRequestDto) {
         log.info("Начато выполнение \"Создать запрос\". " +
                 "requesterId={}; RequestBody={}", requesterId, itemRequestDto);
@@ -36,7 +37,7 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> getByRequester(@RequestHeader(headerId) Long requesterId) {
+    public ResponseEntity<Object> getByRequester(@RequestHeader(HEADER_ID) Long requesterId) {
         log.info("Начато выполнение \"Получить запросы пользователя\". " +
                 "requesterId={}", requesterId);
         return itemRequestClient.getByRequester(requesterId);
@@ -44,7 +45,7 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public ResponseEntity<Object> getMadeByOther(
-            @RequestHeader(headerId) Long requesterId,
+            @RequestHeader(HEADER_ID) Long requesterId,
             @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Long from,
             @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Начато выполнение \"Получить запросы других пользователей\". " +
@@ -53,7 +54,7 @@ public class ItemRequestController {
     }
 
     @GetMapping("/{requestId}")
-    public ResponseEntity<Object> getById(@RequestHeader(headerId) Long requesterId,
+    public ResponseEntity<Object> getById(@RequestHeader(HEADER_ID) Long requesterId,
                                   @PathVariable Long requestId) {
         log.info("Начато выполнение \"Получить запрос по ID\". " +
                 "requestId={}", requestId);

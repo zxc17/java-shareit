@@ -22,6 +22,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
+import static ru.practicum.shareit.util.Constants.HEADER_ID;
+
 @Controller
 @Slf4j
 @RequiredArgsConstructor
@@ -29,10 +31,9 @@ import javax.validation.constraints.PositiveOrZero;
 @Validated
 public class ItemController {
     private final ItemClient itemClient;
-    private final String headerId = "X-Sharer-User-Id";
 
     @PostMapping
-    public ResponseEntity<Object> add(@RequestHeader(headerId) Long ownerId,
+    public ResponseEntity<Object> add(@RequestHeader(HEADER_ID) Long ownerId,
                                       @Validated({Create.class}) @RequestBody ItemDto itemDto) {
         log.info("Начато выполнение \"Создать вещь\". " +
                 "ownerID={}, RequestBody={}", ownerId, itemDto);
@@ -40,7 +41,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ResponseEntity<Object> update(@RequestHeader(headerId) Long ownerId,
+    public ResponseEntity<Object> update(@RequestHeader(HEADER_ID) Long ownerId,
                                          @PathVariable Long itemId,
                                          @Validated({Update.class}) @RequestBody ItemDto itemDto) {
         log.info("Начато выполнение \"Обновить вещь\". " +
@@ -49,7 +50,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<Object> getById(@RequestHeader(headerId) Long requesterId,
+    public ResponseEntity<Object> getById(@RequestHeader(HEADER_ID) Long requesterId,
                                           @PathVariable Long itemId) {
         log.info("Начато выполнение \"Получить вещь по ID\". " +
                 "itemID={}, requesterID={}", itemId, requesterId);
@@ -58,7 +59,7 @@ public class ItemController {
 
     @GetMapping
     public ResponseEntity<Object> getListByOwner(
-            @RequestHeader(headerId) Long ownerId,
+            @RequestHeader(HEADER_ID) Long ownerId,
             @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Long from,
             @Positive @RequestParam(name = "size", defaultValue = "10") Integer size
     ) {
@@ -68,7 +69,7 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> findItems(@RequestHeader(headerId) Long requesterId,
+    public ResponseEntity<Object> findItems(@RequestHeader(HEADER_ID) Long requesterId,
                                             @RequestParam @NotNull String text,
                                             @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Long from,
                                             @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
@@ -78,7 +79,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public ResponseEntity<Object> addComment(@RequestHeader(headerId) Long userId,
+    public ResponseEntity<Object> addComment(@RequestHeader(HEADER_ID) Long userId,
                                              @PathVariable Long itemId,
                                              @Validated({Create.class}) @RequestBody CommentDto commentDto) {
         log.info("Начато выполнение \"Добавить комментарий\". " +

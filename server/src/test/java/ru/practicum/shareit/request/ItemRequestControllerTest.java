@@ -23,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.util.Constants.HEADER_ID;
 
 @WebMvcTest(ItemRequestController.class)
 @AutoConfigureMockMvc
@@ -34,7 +35,6 @@ class ItemRequestControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     private User requester;
-    private final String headerId = "X-Sharer-User-Id";
 
     @BeforeEach
     void setUp() {
@@ -59,7 +59,7 @@ class ItemRequestControllerTest {
 
         // Act
         mockMvc.perform(post("/requests")
-                        .header(headerId, 3L)
+                        .header(HEADER_ID, 3L)
                         .content(objectMapper.writeValueAsString(itemRequestDto))
                         .contentType(MediaType.APPLICATION_JSON))
 
@@ -86,7 +86,7 @@ class ItemRequestControllerTest {
 
         // Act
         mockMvc.perform(get("/requests")
-                        .header(headerId, 3L)
+                        .header(HEADER_ID, 3L)
                         .contentType(MediaType.APPLICATION_JSON))
 
                 // Assert
@@ -113,7 +113,7 @@ class ItemRequestControllerTest {
 
         // Act
         mockMvc.perform(get("/requests/all")
-                        .header(headerId, 3L)
+                        .header(HEADER_ID, 3L)
                         .contentType(MediaType.APPLICATION_JSON))
 
                 // Assert
@@ -140,7 +140,7 @@ class ItemRequestControllerTest {
 
         // Act
         mockMvc.perform(get("/requests/1")
-                        .header(headerId, 3L)
+                        .header(HEADER_ID, 3L)
                         .contentType(MediaType.APPLICATION_JSON))
 
                 // Assert
